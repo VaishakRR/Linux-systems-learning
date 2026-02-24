@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# while-menu: a menu driven system information page
+
+DELAY=3 # number of seconds to display results
+
+while [[ "$REPLY" != 0 ]]; do
+		clear
+		cat <<- _EOF_
+				please select:
+
+				1.Display Sysytem Information
+				2.Display Disk Space
+				3.Dislay Spcae Utilization
+				0.Quit
+		_EOF_
+
+		read -p "Enter your seclection [0-3] > "
+
+		if echo "$REPLY" | grep -q "^[0-3]$" ; then
+				#if [ "$REPLY" -eq 0 ]; then 
+						#echo "Program terminated"
+						#exit 
+				#fi
+				if [ "$REPLY" -eq 1 ]; then
+						echo "Hostname: $HOSTNAME"
+						uptime
+						sleep $DELAY
+						continue
+				fi
+				if [ "$REPLY" -eq 2 ]; then
+						df -h
+						sleep $DELAY
+						continue
+				fi
+				if [ "$REPLY" -eq 3 ]; then
+						if [ "$(id -u)" -eq 0 ]; then
+								echo " Home Space Utilization (All Users)"
+								du -sh /home/*
+						else
+								echo "Home Space Utilzation ($USER)"
+								du -sh $HOME
+						fi
+						sleep $DELAY
+						continue
+				fi
+				if [[ $REPLY == 0 ]]; then
+						break
+				fi
+						
+		else
+				echo "Input is not in the range of 1 to 3" >&2
+				sleep $DELAY
+		fi
+done
+echo "Program Terminated"
+						
