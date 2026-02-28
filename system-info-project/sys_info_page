@@ -98,6 +98,10 @@ done
 if [[ -n $interactive ]]; then
 		while true; do
 				read -p "Enter name of the output file: " filename
+				if [[ -z $filename ]]; then
+						echo "filename cannot be empty"
+						continue
+				fi
 				if [[ -e $filename ]]; then
 						read -p "'$filename' exists. Overwrite? [y/n/q] > "
 						case $REPLY in
@@ -109,6 +113,8 @@ if [[ -n $interactive ]]; then
 								*)		continue
 										;;
 							esac
+				else
+						break
 				fi
 		done
 fi
