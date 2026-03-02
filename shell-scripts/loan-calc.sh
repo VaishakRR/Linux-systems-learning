@@ -6,7 +6,7 @@ PROGNAME=$(basename $0)
 
 usage () {
 		cat <<- _EOF_
-		usage : $PROGNAME PRINCIPAL INTEREST MONTHS
+		usage : $PROGNAME  PRINCIPAL INTEREST MONTHS
 
 		where:
 
@@ -17,32 +17,44 @@ usage () {
 		_EOF_
 }
 
-#if (($# != 3)); then
-#		usage
-#		exit 1
-#fi
+if (($# != 3)); then
+		usage
+		exit 1
+fi
 
 principal=
 interest=
 months=
 
-# process command line operations
+# process command line operations	
 interactive=
 
 while [[ -n $1 ]]; do
 		case $1 in
-				-i | --interactive) 		interactive=1
+				-i | --interactive) 		
+											interactive=1
 											;;
 				-h | --help)				usage
 											exit
 											;;
-				*)							usage >&2
-											exit 1
+				*)							break
 											;;
 		esac
-		
+		shift
 done
-set -x
+
+if [[ -z $interactive ]]; then
+		principal=$1
+		interest=$2
+		months=$3
+fi
+
+if [[ -z $principal || -z $interest || -z $months ]]; then
+		echo "Read the usage below" >&2
+		usage
+		exit 1
+fi
+
 # interactive mode
 
 if [[ -n $interactive ]]; then
@@ -52,17 +64,21 @@ if [[ -n $interactive ]]; then
 				read -p "Enter the duration of in total number of months > " months
 
 				if [[ -z $principal || -z $interest || -z $months ]]; then
-						echo "fields cannot be empty"
+						echo "fields cannot be empty" >&2
 						continue
+				else
+						break
 				fi
 		done
 fi
-set +x
-bc <<- _EOF_
+
+bc -l <<- _EOF_
 		scale = 10
 		i = $interest / 12
 		p = $principal
 		n = $months
-		a = p * ((i *((1 + i)) ^ n)/(((1 + i) ^ n) - 1))
+		factor = (1 + i) ^ n
+		a = p * ((i * factor)/(factor - 1))
 		print a, "\n"
 _EOF_
+
